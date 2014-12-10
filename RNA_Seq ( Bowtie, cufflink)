@@ -1,0 +1,44 @@
+Get data from depository using wget
+wget ftp://ftp-trace.ncbi.nlm.nih.gov/sra/sra-instant/reads/ByStudy/sra/SRP/SRP035/SRP035502/SRR1124836/SRR1124836.sra
+
+
+step 1.
+Convert.sra to fastq
+fastq-dump -A filename filename.sra
+
+2.
+Check Quality by fastqc, if not good trim the fastq for adapter and extra read by
+java -jar trimmomatic-0.32.jar SE -phred33 SRR1124843.fastq SRR1124843_trim.fastq ILLUMINACLIP:TruSeq3-SE.fa:2:30:10 CROP:100  
+
+3.
+Create bowtie index using genome.fa
+bowtie2-build -x Streptococcus_pneumoniae_d39.GCA_000014365.1.24.dna.... Streptococcus_pneumoniae_d39.GCA_000014365.1.24
+
+4. 
+Alignment by bowtie using bowtie index
+bowtie2 -x Streptococcus_pneumoniae_d39.GCA_000014365.1.24 -U SRR1124835_trim.fastq -D 10 -R 2 -N 0 -L 22 -i S,0,2.50 -S 35.sam
+bowtie2 -x Streptococcus_pneumoniae_d39.GCA_000014365.1.24 -U SRR1124836_trim.fastq -D 10 -R 2 -N 0 -L 22 -i S,0,2.50 -S 36.sam
+bowtie2 -x Streptococcus_pneumoniae_d39.GCA_000014365.1.24 -U SRR1124837_trim.fastq -D 10 -R 2 -N 0 -L 22 -i S,0,2.50 -S 37.sam
+bowtie2 -x Streptococcus_pneumoniae_d39.GCA_000014365.1.24 -U SRR1124838_trim.fastq -D 10 -R 2 -N 0 -L 22 -i S,0,2.50 -S 38.sam
+
+5. Optional
+conversion of BAM to SAM or use sort function 
+sort -k 3,3 -k 4,4n hits.sam > hits.sam.sorted
+samtools view -uS 42.sam | samtools sort - 42.sorted 
+
+
+6. 
+Cufflink
+cufflinks -p 8 -g Streptococcus_pneumoniae_d39.GCA_000014365.1.24.gtf -o 35 35.sorted.sam 
+cufflinks -p 8 -g Streptococcus_pneumoniae_d39.GCA_000014365.1.24.gtf -o 36 36.sorted.sam 
+cufflinks -p 8 -g Streptococcus_pneumoniae_d39.GCA_000014365.1.24.gtf -o 37 37.sorted.sam 
+cufflinks -p 8 -g Streptococcus_pneumoniae_d39.GCA_000014365.1.24.gtf -o 38 38.sorted.sam 
+
+
+7. 
+Cuffmerge
+cuffmerge -g Streptococcus_pneumoniae_d39.GCA_000014365.1.24.gtf -s Streptococcus_pneumoniae_d39.GCA_000014365.1.24.dna.toplevel.fa  -p 8 assemblies.txt
+
+
+
+
