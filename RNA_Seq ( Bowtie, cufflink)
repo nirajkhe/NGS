@@ -39,6 +39,10 @@ cufflinks -p 8 -g Streptococcus_pneumoniae_d39.GCA_000014365.1.24.gtf -o 38 38.s
 Cuffmerge
 cuffmerge -g Streptococcus_pneumoniae_d39.GCA_000014365.1.24.gtf -s Streptococcus_pneumoniae_d39.GCA_000014365.1.24.dna.toplevel.fa  -p 8 assemblies.txt
 
+8.
+cuffdiff -o diff_out2 -b Streptococcus_pneumoniae_d39.GCA_000014365.1.24.dna.toplevel.fa -p 8 -L C1,C2 -u merged_asm/merged.gtf 35.sorted.sam, 36.sorted.sam 37.sorted.sam, 38.sorted.sam
+
+## C1 : Control sample, C2 : Treated Sample
 
 
 
